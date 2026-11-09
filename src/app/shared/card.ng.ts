@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'wm-card',
   template: ` @if (pictureUri()) {
-    <img class="picture" [src]="pictureUri()" />
+    <img class="picture" [src]="pictureUri()" alt="" />
     }
 
     <div class="content">
