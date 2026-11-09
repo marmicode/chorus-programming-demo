@@ -1,0 +1,66 @@
+name: Charted dispatch
+
+# When a design doc change lands on main (e.g. a merged pull request), open a branch and a
+# draft pull request for each waypoint that is now unblocked, then fire the routine that runs
+# the charted-autopilot workflow on it.
+
+on:
+  push:
+    branches: [main]
+    paths: ['design-docs/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: charted-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    outputs:
+      created: ${{ steps.dispatch.outputs.created }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+
+      - name: Open waypoint branches and draft pull requests
+        id: dispatch
+        env:
+          # A PAT (contents + pull requests write): refs and pull requests created with
+          # GITHUB_TOKEN would not trigger the Test workflow.
+          GH_TOKEN: ${{ secrets.CHARTED_DISPATCH_TOKEN }}
+        run: node tools/charted/charted-dispatch-github.mjs
+
+  fire:
+    needs: dispatch
+    if: needs.dispatch.outputs.created != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        waypoint: ${{ fromJSON(needs.dispatch.outputs.created) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fire charted-autopilot routine
+        uses: ./.github/actions/fire-claude-routine
+        env:
+          CLAUDE_CODE_ROUTINE_FIRE_TOKEN: ${{ secrets.CLAUDE_CODE_ROUTINE_FIRE_TOKEN }}
+        with:
+          workflow: charted-autopilot
+          branch: ${{ matrix.waypoint.branch }}
+          args: >-
+            {"designDocPath": ${{ toJSON(matrix.waypoint.designDocPath) }},
+            "waypoint": ${{ matrix.waypoint.waypoint }}}
+          message: >-
+            Waypoint #${{ matrix.waypoint.waypoint }} - ${{ matrix.waypoint.title }}
+            of ${{ matrix.waypoint.designDocPath }} is unblocked.
+            Draft pull request: ${{ matrix.waypoint.prUrl }}

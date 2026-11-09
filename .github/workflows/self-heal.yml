@@ -5,14 +5,36 @@ on:
     workflows: [Test]
     types: [completed]
 
+permissions:
+  contents: read
+
 jobs:
   fire:
-    if: github.event.workflow_run.conclusion == 'failure'
+    # Push runs only, so a failure is not healed twice (push + pull_request runs), and never on main.
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch != github.event.repository.default_branch
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      - name: Skip commits pushed by self-heal
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if gh api "repos/${REPOSITORY}/commits/${HEAD_SHA}" --jq .commit.message | grep -q '^Charted-Loop: self-heal$'; then
+            echo "Head commit was pushed by self-heal: not healing again."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Fire self-heal routine
+        if: steps.guard.outputs.skip == 'false'
         uses: ./.github/actions/fire-claude-routine
         env:
           CLAUDE_CODE_ROUTINE_FIRE_TOKEN: ${{ secrets.CLAUDE_CODE_ROUTINE_FIRE_TOKEN }}

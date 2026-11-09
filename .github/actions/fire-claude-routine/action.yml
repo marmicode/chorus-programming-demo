@@ -3,8 +3,17 @@ description: POST a JSON dispatcher payload to the Kitchen Claude Code routine A
 
 inputs:
   skill:
-    description: Job id under .claude/routines/jobs/ or a repo-relative skill path
-    required: true
+    description: Skill name (or job id under .claude/routines/jobs/) to invoke. Set exactly one of skill or workflow.
+    required: false
+    default: ""
+  workflow:
+    description: Workflow name under .claude/workflows/ to run. Set exactly one of skill or workflow.
+    required: false
+    default: ""
+  args:
+    description: JSON object of arguments for the skill or workflow
+    required: false
+    default: "{}"
   message:
     description: Run-specific context (URLs, SHAs, notes)
     required: true
@@ -22,6 +31,8 @@ runs:
         ROUTINE_FIRE_URL: https://api.anthropic.com/v1/claude_code/routines/trig_01Az4dzC3xXCA8vgTBZg7Nz2/fire
         REPOSITORY: ${{ github.repository }}
         SKILL: ${{ inputs.skill }}
+        WORKFLOW: ${{ inputs.workflow }}
+        ARGS: ${{ inputs.args }}
         MESSAGE: ${{ inputs.message }}
         BRANCH_INPUT: ${{ inputs.branch }}
         HEAD_REF: ${{ github.head_ref }}
@@ -31,6 +42,11 @@ runs:
 
         if [ -z "${CLAUDE_CODE_ROUTINE_FIRE_TOKEN:-}" ]; then
           echo "Missing repository secret CLAUDE_CODE_ROUTINE_FIRE_TOKEN"
+          exit 1
+        fi
+
+        if { [ -n "$SKILL" ] && [ -n "$WORKFLOW" ]; } || { [ -z "$SKILL" ] && [ -z "$WORKFLOW" ]; }; then
+          echo "Set exactly one of the skill and workflow inputs"
           exit 1
         fi
 
@@ -46,8 +62,12 @@ runs:
           --arg repository "$REPOSITORY" \
           --arg branch "$BRANCH" \
           --arg skill "$SKILL" \
+          --arg workflow "$WORKFLOW" \
+          --argjson args "$ARGS" \
           --arg message "$MESSAGE" \
-          '{repository: $repository, branch: $branch, skill: $skill, message: $message}')"
+          '{repository: $repository, branch: $branch}
+            + (if $skill != "" then {skill: $skill} else {workflow: $workflow} end)
+            + {args: $args, message: $message}')"
 
         BODY="$(jq -nc --arg text "$TEXT" '{text: $text}')"
 
