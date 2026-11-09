@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "whiskmate",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["nx", "serve", "whiskmate", "--port=4300"],
+      "port": 4300,
+      "autoPort": false
+    }
+  ]
+}
