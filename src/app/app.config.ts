@@ -10,7 +10,7 @@ import {
   provideRecipeRepositoryFake,
   RecipeRepositoryFake,
 } from './recipe/recipe-repository.fake';
-import { recipeMother } from './testing/recipe.mother';
+import { RECIPES } from './recipe/recipe-data';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,11 +19,7 @@ export const appConfig: ApplicationConfig = {
     provideRecipeRepositoryFake(),
     provideAppInitializer(() => {
       const fake = inject(RecipeRepositoryFake);
-      fake.setRecipes([
-        recipeMother.withBasicInfo('Burger').build(),
-        recipeMother.withBasicInfo('Salad').build(),
-        recipeMother.withBasicInfo('Beer').build(),
-      ]);
+      fake.setRecipes(RECIPES);
     }),
   ],
 };
