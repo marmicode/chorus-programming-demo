@@ -1,12 +1,10 @@
-import { Injectable, Provider } from '@angular/core';
+import { Provider, Service } from '@angular/core';
 import { RecipeFilter } from './recipe-filter';
 import { defer, Observable, of } from 'rxjs';
 import { Recipe } from './recipe';
 import { RecipeRepository, RecipeRepositoryDef } from './recipe-repository';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class RecipeRepositoryFake implements RecipeRepositoryDef {
   private _pauseGate = new PauseGate();
   private _recipes: Recipe[] = [];
