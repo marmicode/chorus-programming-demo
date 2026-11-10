@@ -65,6 +65,9 @@ Charted-Loop: autopilot
 Use `autopilot` for the charted-autopilot workflow and the skill name for skills (`self-heal`,
 `tidy-up`...). The workflows rely on this trailer to ignore the loop's own commits, so never omit it.
 
+Never put `#` before a number in a commit subject or pull request title (`waypoint 1`, never
+`waypoint #1`). GitHub turns `#1` into a link to an issue or pull request.
+
 ### 5. Publish
 
 1. `git push origin HEAD:<branch>`. Never push to `main`, never force-push, never rewrite history.
@@ -76,8 +79,20 @@ Use `autopilot` for the charted-autopilot workflow and the skill name for skills
 Find the pull request of `branch` (`gh pr view <branch>`, or the GitHub tools if `gh` is
 unavailable), then, depending on the workflow result:
 
-- `done`: mark the pull request as ready for review and comment with a short summary of the
-  steps and commits.
+- `done`: set the pull request title, then mark it ready for review and comment with a short
+  summary of the steps and commits.
+
+  The title is `<prefix>: <emoji> <design-doc waypoint title>`. Keep the design-doc title's
+  wording, and leave the waypoint number out of it. Never put `#` before a number: GitHub turns
+  `#1` into a link to an issue or pull request. Choose the prefix for the waypoint as a
+  whole, from its outcome:
+  - `feat: ✨` when this waypoint changes behavior and that behavior is wired up and reachable.
+  - `refactor: 🛠️` otherwise (types, an unwired component, scaffolding).
+
+  Ignore the prefixes already on the branch: scaffold, green, and extra-task commits are always
+  `refactor:`, and red commits are always `test:`. Set the title with
+  `gh pr edit <branch> --title "..."`.
+
 - `stuck` or `aborted`: comment with the step it got stuck on and the reason, so a human can
   unblock it. Any commit a human pushes to the branch resumes the loop.
 

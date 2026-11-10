@@ -77,7 +77,10 @@ export function applyDispatch({ waypoints, repo, base, gh }) {
       return item;
     }
 
-    const name = `waypoint #${item.waypoint} - ${item.title}`;
+    const name = `waypoint ${item.waypoint} - ${item.title}`;
+    // Drafts stay refactor until the loop marks the pull request ready and
+    // retitles a waypoint whose behavior is wired up to feat.
+    const title = `refactor: 🛠️ ${item.title}`;
     const commitSha = gh([
       'api',
       `repos/${repo}/git/commits`,
@@ -113,9 +116,9 @@ export function applyDispatch({ waypoints, repo, base, gh }) {
       '--head',
       item.branch,
       '--title',
-      name,
+      title,
       '--body',
-      `Implements waypoint #${item.waypoint} ("${item.title}") of [${item.designDocPath}](https://github.com/${repo}/blob/${base}/${item.designDocPath}).\n\nDriven by the charted loop: the \`charted-autopilot\` workflow runs on this branch.`,
+      `Implements waypoint ${item.waypoint} ("${item.title}") of [${item.designDocPath}](https://github.com/${repo}/blob/${base}/${item.designDocPath}).\n\nDriven by the charted loop: the \`charted-autopilot\` workflow runs on this branch.`,
     ]).trim();
 
     return { ...item, action: 'created', prUrl };

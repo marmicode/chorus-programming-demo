@@ -325,13 +325,13 @@ Report pushed=true only after the push succeeds, with the branch name.`,
 
 const COMMIT_SUBJECTS = {
   scaffold: (pr) =>
-    `refactor: 🛠️ scaffold waypoint #${pr.number} - ${describe(pr)}`,
+    `refactor: 🛠️ scaffold waypoint ${pr.number} - ${describe(pr)}`,
   red: (pr) =>
-    `test: ✅ add tests for waypoint #${pr.number} - ${describe(pr)}`,
+    `test: ✅ add tests for waypoint ${pr.number} - ${describe(pr)}`,
   green: (pr) =>
-    `refactor: 🛠️ implement waypoint #${pr.number} - ${describe(pr)}`,
+    `refactor: 🛠️ implement waypoint ${pr.number} - ${describe(pr)}`,
   "extra task": (pr, result) =>
-    `refactor: 🛠️ complete task of waypoint #${pr.number} - ${describeTasks(result?.tasks) ?? describe(pr)}`,
+    `refactor: 🛠️ complete task of waypoint ${pr.number} - ${describeTasks(result?.tasks) ?? describe(pr)}`,
 };
 
 function describe(pr) {
@@ -351,9 +351,9 @@ function lowerFirst(text) {
   return trimmed.charAt(0).toLowerCase() + trimmed.slice(1);
 }
 
-// e.g. "#1 - scaffold", "#1 - red", "#1 - green", "#1 - extra task"
+// e.g. "waypoint 1 - scaffold", "waypoint 1 - red", "waypoint 1 - green"
 function phaseTitle(step, pr) {
-  return `#${pr.number} - ${step}`;
+  return `waypoint ${pr.number} - ${step}`;
 }
 
 const PROGRESS_SCHEMA = {

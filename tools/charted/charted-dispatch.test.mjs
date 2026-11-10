@@ -98,7 +98,7 @@ test('creates a branch with a start commit and a draft pull request', () => {
   assert.ok(
     calls.some((args) =>
       args.includes(
-        'message=refactor: 🛠️ start waypoint #1 - List recipes\n\nCharted-Loop: dispatch',
+        'message=refactor: 🛠️ start waypoint 1 - List recipes\n\nCharted-Loop: dispatch',
       ),
     ),
   );
@@ -109,13 +109,12 @@ test('creates a branch with a start commit and a draft pull request', () => {
         args.includes('sha=start-sha'),
     ),
   );
-  assert.ok(
-    calls.some(
-      (args) =>
-        args[0] === 'pr' &&
-        args.includes('--draft') &&
-        args.includes('waypoint #1 - List recipes'),
-    ),
+  const prCreate = calls.find(
+    (args) => args[0] === 'pr' && args.includes('--draft'),
+  );
+  assert.equal(
+    prCreate[prCreate.indexOf('--title') + 1],
+    'refactor: 🛠️ List recipes',
   );
 });
 
