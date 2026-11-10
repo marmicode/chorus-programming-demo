@@ -1,4 +1,4 @@
-name: Self heal trigger
+name: Self heal
 
 on:
   workflow_run:

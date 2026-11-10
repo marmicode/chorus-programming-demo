@@ -1,4 +1,4 @@
-name: Tidy up trigger
+name: Tidy up
 
 on:
   push:
