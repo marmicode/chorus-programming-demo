@@ -21,10 +21,6 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
     offset,
     limit,
   }: RecipeFilter & RecipePaginationParams = {}): Observable<RecipePage> {
-    if (offset !== undefined || limit !== undefined) {
-      throw new Error(`🚧 work in progress`);
-    }
-
     return defer(async () => {
       await this._pauseGate.whenResumed;
       const recipes = this._recipes.filter((recipe) => {
@@ -44,7 +40,13 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
         /* Return true if all conditions are true. */
         return conditions.every((condition) => condition());
       });
-      return { items: recipes, total: recipes.length };
+      return {
+        items: recipes.slice(
+          offset ?? 0,
+          limit !== undefined ? (offset ?? 0) + limit : undefined,
+        ),
+        total: recipes.length,
+      };
     });
   }
 
