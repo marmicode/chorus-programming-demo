@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  tidyup_gate:
+  tidyup:
     runs-on: ubuntu-latest
     outputs:
       found: ${{ steps.tidyup.outputs.found }}
@@ -22,7 +22,7 @@ jobs:
       - name: Check for // TIDYUP in added lines
         id: tidyup
         env:
-          BASE: charted-coding-1-design-doc
+          BASE: ${{ github.event.repository.default_branch }}
         run: |
           git fetch origin "$BASE"
           if git diff "origin/${BASE}...HEAD" | egrep -q '^\+ *// TIDYUP'; then
@@ -33,8 +33,8 @@ jobs:
           fi
 
   fire:
-    needs: tidyup_gate
-    if: needs.tidyup_gate.outputs.found == 'true'
+    needs: tidyup
+    if: needs.tidyup.outputs.found == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,5 +46,5 @@ jobs:
         with:
           skill: tidy-up
           message: >-
-            New // TIDYUP markers on this branch vs base charted-coding-1-design-doc.
+            New // TIDYUP markers on this branch vs base ${{ github.event.repository.default_branch }}.
             Triggering ref: ${{ github.ref }}
