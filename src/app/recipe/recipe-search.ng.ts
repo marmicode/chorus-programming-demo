@@ -17,23 +17,35 @@ import { rxResource } from '@angular/core/rxjs-interop';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'wm-recipe-search',
-  imports: [Catalog, RecipeAddButton, RecipeFilterForm, RecipePreview, Paginator],
+  imports: [
+    Catalog,
+    RecipeAddButton,
+    RecipeFilterForm,
+    RecipePreview,
+    Paginator,
+  ],
   template: `
     <wm-recipe-filter-form (filterChange)="onFilterChange($event)" />
     <wm-catalog>
       @for (recipe of items(); track recipe.id) {
-      <wm-recipe-preview [recipe]="recipe">
-        <wm-recipe-add-button [recipe]="recipe" />
-      </wm-recipe-preview>
+        <wm-recipe-preview [recipe]="recipe">
+          <wm-recipe-add-button [recipe]="recipe" />
+        </wm-recipe-preview>
       }
     </wm-catalog>
-    <wm-paginator [offset]="offset()" [limit]="limit" [total]="total()" (offsetChange)="offset.set($event)" />
+    <wm-paginator
+      [offset]="offset()"
+      [limit]="limit"
+      [total]="total()"
+      (offsetChange)="offset.set($event)"
+    />
   `,
 })
 export class RecipeSearch {
   filter = signal<RecipeFilter>({});
-  offset = signal(0);
+  offset = signal(5);
   limit = 5;
+  // TIDYUP: Factorize this in a `fetchRecipes` function.
   recipes = rxResource({
     params: () => ({ filter: this.filter(), offset: this.offset() }),
     stream: ({ params }) =>
