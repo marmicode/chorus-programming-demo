@@ -30,6 +30,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 })
 export class RecipeSearch {
   filter = signal<RecipeFilter>({});
+  offset = signal(0);
   recipes = rxResource({
     params: this.filter,
     stream: ({ params }) => this._recipeRepository.search(params).pipe(map((page) => page.items)),
