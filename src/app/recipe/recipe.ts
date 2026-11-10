@@ -7,6 +7,11 @@ export interface Recipe {
   steps: string[];
 }
 
+export interface RecipePage {
+  items: Recipe[];
+  total: number;
+}
+
 export interface Ingredient {
   quantity?: Quantity;
   name: string;
