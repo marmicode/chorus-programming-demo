@@ -2,7 +2,11 @@ import { Provider, Service } from '@angular/core';
 import { RecipeFilter } from './recipe-filter';
 import { defer, Observable, of } from 'rxjs';
 import { Recipe } from './recipe';
-import { RecipeRepository, RecipeRepositoryDef } from './recipe-repository';
+import {
+  RecipePaginationParams,
+  RecipeRepository,
+  RecipeRepositoryDef,
+} from './recipe-repository';
 
 @Service()
 export class RecipeRepositoryFake implements RecipeRepositoryDef {
@@ -13,7 +17,13 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
     keywords,
     maxIngredientCount,
     maxStepCount,
-  }: RecipeFilter = {}): Observable<Recipe[]> {
+    offset,
+    limit,
+  }: RecipeFilter & RecipePaginationParams = {}): Observable<Recipe[]> {
+    if (offset !== undefined || limit !== undefined) {
+      throw new Error(`🚧 work in progress`);
+    }
+
     return defer(async () => {
       await this._pauseGate.whenResumed;
       const recipes = this._recipes.filter((recipe) => {
