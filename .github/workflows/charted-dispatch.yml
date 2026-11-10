@@ -36,7 +36,7 @@ jobs:
         env:
           # A PAT (contents + pull requests write): refs and pull requests created with
           # GITHUB_TOKEN would not trigger the Test workflow.
-          GH_TOKEN: ${{ secrets.CHARTED_DISPATCH_TOKEN }}
+          GH_TOKEN: ${{ secrets.CHARTED_DISPATCH_GITHUB_TOKEN }}
         run: node tools/charted/charted-dispatch-github.mjs
 
   fire:

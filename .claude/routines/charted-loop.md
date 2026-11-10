@@ -12,9 +12,6 @@ Instructions for the Claude Code routine fired by the GitHub workflows of this r
   `pnpm install --frozen-lockfile && pnpm exec playwright install --with-deps chromium`.
 - **API trigger:** its fire URL is the one in `.github/actions/fire-claude-routine/action.yml`, and
   its token is the `CLAUDE_CODE_ROUTINE_FIRE_TOKEN` repository secret.
-- **Repository secrets:** `CLAUDE_CODE_ROUTINE_FIRE_TOKEN` (routine trigger token) and
-  `CHARTED_DISPATCH_TOKEN` (fine-grained PAT on this repository with "Contents" and
-  "Pull requests" read & write).
 
 ## Instructions
 
