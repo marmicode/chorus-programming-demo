@@ -5,9 +5,6 @@ import { RecipeFilter } from './recipe-filter';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
-/**
- * @deprecated 🚧 work in progress
- */
 export interface RecipePagination {
   offset?: number;
   limit?: number;
