@@ -5,9 +5,6 @@ export interface RecipePage {
   total: number;
 }
 
-/**
- * @deprecated 🚧 work in progress
- */
 export interface RecipePagination {
   offset: number;
   limit: number;
