@@ -1,8 +1,9 @@
 name: Charted dispatch
 
-# When a design doc change lands on main (e.g. a merged pull request), open a branch and a
-# draft pull request for each waypoint that is now unblocked, then fire the routine that runs
-# the charted-autopilot workflow on it.
+# When a design doc change lands on main (e.g. a merged pull request), analyze every design doc
+# (not only the ones changed by the push), open a branch and a draft pull request for each
+# waypoint that is now unblocked, then fire the routine that runs the charted-autopilot
+# workflow on it.
 
 on:
   push:
@@ -24,8 +25,6 @@ jobs:
       created: ${{ steps.dispatch.outputs.created }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
       - uses: actions/setup-node@v4
         with:
