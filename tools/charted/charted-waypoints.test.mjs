@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { exampleDoc, markWaypointDone } from './charted-fixtures.mjs';
+import {
+  exampleDoc,
+  markWaypointDone,
+  parallelRootsDoc,
+} from './charted-fixtures.mjs';
 import { parseDesignDoc } from './charted-progress.mjs';
 import {
   isUnblocked,
@@ -38,6 +42,15 @@ test('blocks waypoints whose dependencies are not done', () => {
 
   assert.equal(isUnblocked(1, dependencies, progress), true);
   assert.equal(isUnblocked(2, dependencies, progress), false);
+});
+
+test('unblocks every root when the diagram has parallel waypoints', () => {
+  const dependencies = parseWaypointDependencies(parallelRootsDoc);
+  const progress = parseDesignDoc(parallelRootsDoc);
+
+  assert.equal(isUnblocked(1, dependencies, progress), true);
+  assert.equal(isUnblocked(2, dependencies, progress), true);
+  assert.equal(isUnblocked(3, dependencies, progress), false);
 });
 
 test('without explicit edges, waits for every lower-numbered waypoint', () => {
