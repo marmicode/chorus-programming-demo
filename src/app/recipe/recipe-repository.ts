@@ -21,13 +21,12 @@ export class RecipeRepository implements RecipeRepositoryDef {
     { keywords, maxIngredientCount }: RecipeFilter = {},
     pagination?: RecipePagination,
   ): Observable<Recipe[]> {
-    if (pagination) {
-      throw new Error(`🚧 work in progress`);
-    }
-
     const params: ResponseListQueryParams = {
       embed: 'ingredients',
       ...(keywords ? { q: keywords } : {}),
+      ...(pagination
+        ? { offset: pagination.offset, limit: pagination.limit }
+        : {}),
     };
 
     return this._httpClient
@@ -61,6 +60,8 @@ export class RecipeRepository implements RecipeRepositoryDef {
 type ResponseListQueryParams = {
   embed: 'ingredients' | 'steps' | 'ingredients,steps';
   q?: string;
+  offset?: number;
+  limit?: number;
 };
 
 interface RecipeListResponseDto {
