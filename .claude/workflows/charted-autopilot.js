@@ -1,7 +1,7 @@
 export const meta = {
   name: "charted-autopilot",
   description:
-    "Loops the Charted Coding scaffold/red/green/extra task cycle, committing after each phase, until the design doc (or the given waypoint) is fully done or the loop is stuck",
+    "Loops the Charted Coding scaffold/red/green/extra task cycle, committing and pushing after each phase, until the design doc (or the given waypoint) is fully done or the loop is stuck",
   phases: [
     { title: "Progress", detail: "deterministic design doc parsing" },
     { title: "Next step", detail: "scaffold, red, green, extra task, or done" },
@@ -85,7 +85,18 @@ async function main() {
         );
       }
       const commit = await commitPhase(next.step, pr, result);
-      steps.push({ ...current, ...result, commit });
+      if (commit) {
+        const publication = await publishPhase(next.step, pr);
+        if (publication?.pushed !== true) {
+          steps.push({ ...current, ...result, commit, pushed: false });
+          return {
+            status: "aborted",
+            reason: publication?.reason ?? "push failed",
+            steps,
+          };
+        }
+      }
+      steps.push({ ...current, ...result, commit, pushed: Boolean(commit) });
     }
 
     // Scaffold and red never edit the design doc.
@@ -282,6 +293,36 @@ async function commitPhase(step, pr, phaseResult) {
   return result?.committed ? subject : null;
 }
 
+// Runs only after a commit, when the tree is clean. Rebase first so a commit that
+// landed on the branch meanwhile (a human, or self-heal) is replayed under this one.
+async function publishPhase(step, pr) {
+  const result = await agent(
+    `Publish the commit just created on the current branch. Run only the commands below. Never use --force, never rewrite already-pushed history, and never push main or master.
+
+1. branch="$(git rev-parse --abbrev-ref HEAD)"
+2. If branch is "main", "master", or "HEAD", stop. Report pushed=false and the reason.
+3. git fetch origin
+4. If origin/$branch exists, run: git pull --rebase --autostash origin "$branch"
+   On a rebase conflict, run git rebase --abort, then stop. Report pushed=false and the conflict.
+5. git push origin "HEAD:$branch"
+   If the push is rejected, stop. Report pushed=false and the git error. Do not retry.
+
+Report pushed=true only after the push succeeds, with the branch name.`,
+    {
+      schema: PUBLISH_SCHEMA,
+      effort: "low",
+      phase: phaseTitle(step, pr),
+      label: `push:${step}:waypoint${pr.number}`,
+    },
+  );
+  log(
+    result?.pushed
+      ? `Pushed ${result.branch ?? ""} — ${step} of waypoint #${pr.number}`
+      : `Push failed after ${step} of waypoint #${pr.number}: ${result?.reason ?? "unknown"}`,
+  );
+  return result;
+}
+
 const COMMIT_SUBJECTS = {
   scaffold: (pr) =>
     `refactor: 🛠️ scaffold waypoint #${pr.number} - ${describe(pr)}`,
@@ -394,6 +435,16 @@ const COMMIT_SCHEMA = {
     sha: { type: "string" },
   },
   required: ["committed"],
+};
+
+const PUBLISH_SCHEMA = {
+  type: "object",
+  properties: {
+    pushed: { type: "boolean" },
+    branch: { type: "string" },
+    reason: { type: "string" },
+  },
+  required: ["pushed"],
 };
 
 // Kept last: the constants above must be initialized before main() runs.
