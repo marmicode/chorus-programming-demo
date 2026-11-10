@@ -1,8 +1,8 @@
 import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
-import { createRecipe, Recipe } from './recipe';
+import { createRecipe } from './recipe';
 import { RecipeFilter } from './recipe-filter';
-import { RecipePagination } from './recipe-page';
+import { RecipePage, RecipePagination } from './recipe-page';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
@@ -10,7 +10,7 @@ export interface RecipeRepositoryDef {
   search(
     filter: RecipeFilter,
     pagination?: RecipePagination,
-  ): Observable<Recipe[]>;
+  ): Observable<RecipePage>;
 }
 
 @Service()
@@ -20,7 +20,7 @@ export class RecipeRepository implements RecipeRepositoryDef {
   search(
     { keywords, maxIngredientCount }: RecipeFilter = {},
     pagination?: RecipePagination,
-  ): Observable<Recipe[]> {
+  ): Observable<RecipePage> {
     const params: ResponseListQueryParams = {
       embed: 'ingredients',
       ...(keywords ? { q: keywords } : {}),
@@ -34,8 +34,9 @@ export class RecipeRepository implements RecipeRepositoryDef {
         params,
       })
       .pipe(
-        map((response) =>
-          response.items
+        map((response) => ({
+          total: response.total,
+          items: response.items
             .map((item) =>
               createRecipe({
                 id: item.id,
@@ -51,8 +52,8 @@ export class RecipeRepository implements RecipeRepositoryDef {
               maxIngredientCount != null
                 ? recipe.ingredients.length <= maxIngredientCount
                 : true
-            )
-        )
+            ),
+        }))
       );
   }
 }
@@ -65,6 +66,7 @@ type ResponseListQueryParams = {
 };
 
 interface RecipeListResponseDto {
+  total: number;
   items: RecipeDto[];
 }
 
