@@ -5,9 +5,6 @@ import { RecipeFilter } from './recipe-filter';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
-/**
- * @deprecated 🚧 work in progress
- */
 export interface RecipePaginationParams {
   offset?: number;
   limit?: number;
@@ -27,13 +24,11 @@ export class RecipeRepository implements RecipeRepositoryDef {
     offset,
     limit,
   }: RecipeFilter & RecipePaginationParams = {}): Observable<Recipe[]> {
-    if (offset !== undefined || limit !== undefined) {
-      throw new Error(`🚧 work in progress`);
-    }
-
     const params: ResponseListQueryParams = {
       embed: 'ingredients',
       ...(keywords ? { q: keywords } : {}),
+      ...(offset !== undefined ? { offset } : {}),
+      ...(limit !== undefined ? { limit } : {}),
     };
 
     return this._httpClient
@@ -67,6 +62,8 @@ export class RecipeRepository implements RecipeRepositoryDef {
 type ResponseListQueryParams = {
   embed: 'ingredients' | 'steps' | 'ingredients,steps';
   q?: string;
+  offset?: number;
+  limit?: number;
 };
 
 interface RecipeListResponseDto {
