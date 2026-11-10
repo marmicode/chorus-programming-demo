@@ -2,6 +2,7 @@ import { Provider, Service } from '@angular/core';
 import { RecipeFilter } from './recipe-filter';
 import { defer, Observable, of } from 'rxjs';
 import { Recipe } from './recipe';
+import { RecipePage } from './recipe-page';
 import {
   RecipePaginationParams,
   RecipeRepository,
@@ -19,7 +20,7 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
     maxStepCount,
     offset,
     limit,
-  }: RecipeFilter & RecipePaginationParams = {}): Observable<Recipe[]> {
+  }: RecipeFilter & RecipePaginationParams = {}): Observable<RecipePage> {
     if (offset !== undefined || limit !== undefined) {
       throw new Error(`🚧 work in progress`);
     }
@@ -43,7 +44,7 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
         /* Return true if all conditions are true. */
         return conditions.every((condition) => condition());
       });
-      return recipes;
+      return { items: recipes, total: recipes.length };
     });
   }
 
