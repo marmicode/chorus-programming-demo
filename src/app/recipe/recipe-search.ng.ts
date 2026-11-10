@@ -45,11 +45,11 @@ export class RecipeSearch {
   filter = signal<RecipeFilter>({});
   offset = signal(5);
   limit = 5;
-  // TIDYUP: Factorize this in a `fetchRecipes` function.
   recipes = rxResource({
     params: () => ({ filter: this.filter(), offset: this.offset() }),
     stream: ({ params }) =>
-      this._recipeRepository.search(params.filter, {
+      fetchRecipes(this._recipeRepository, {
+        filter: params.filter,
         offset: params.offset,
         limit: this.limit,
       }),
@@ -63,4 +63,15 @@ export class RecipeSearch {
   }
 
   private _recipeRepository = inject(RecipeRepository);
+}
+
+function fetchRecipes(
+  repository: RecipeRepository,
+  {
+    filter,
+    offset,
+    limit,
+  }: { filter: RecipeFilter; offset: number; limit: number },
+) {
+  return repository.search(filter, { offset, limit });
 }
