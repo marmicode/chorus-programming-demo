@@ -43,7 +43,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 })
 export class RecipeSearch {
   filter = signal<RecipeFilter>({});
-  offset = signal(5);
+  offset = signal(0);
   limit = 5;
   recipes = rxResource({
     params: () => ({ filter: this.filter(), offset: this.offset() }),
