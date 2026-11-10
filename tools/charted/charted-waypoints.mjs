@@ -39,7 +39,8 @@ export function parseWaypointDependencies(markdown) {
 
 /**
  * A waypoint is unblocked when all its explicit dependencies are done.
- * Without explicit edges, every lower-numbered waypoint must be done.
+ * A waypoint with no incoming edges is unblocked immediately.
+ * When the diagram has no edges at all, every lower-numbered waypoint must be done.
  *
  * @param {number} waypoint
  * @param {Map<number, number[]>} dependencies
@@ -51,7 +52,11 @@ export function isUnblocked(waypoint, dependencies, progress) {
   );
   const prerequisites =
     dependencies.get(waypoint) ??
-    progress.prs.map((pr) => pr.number).filter((number) => number < waypoint);
+    (dependencies.size === 0
+      ? progress.prs
+          .map((pr) => pr.number)
+          .filter((number) => number < waypoint)
+      : []);
   return prerequisites.every((number) => doneWaypoints.has(number));
 }
 

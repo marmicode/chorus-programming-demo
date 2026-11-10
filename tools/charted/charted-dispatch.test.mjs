@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { exampleDoc, markWaypointDone } from './charted-fixtures.mjs';
+import {
+  exampleDoc,
+  markWaypointDone,
+  parallelRootsDoc,
+} from './charted-fixtures.mjs';
 import { applyDispatch, planDispatch } from './charted-dispatch.mjs';
 
 const path = 'design-docs/001-meal-plan.md';
@@ -33,6 +37,26 @@ test('plans the waypoints unblocked by a done waypoint', () => {
     [
       { waypoint: 2, action: 'create' },
       { waypoint: 3, action: 'create' },
+    ],
+  );
+});
+
+test('plans every root of a diagram with parallel waypoints', () => {
+  const waypoints = planDispatch({
+    docs: [
+      {
+        path: 'design-docs/001-recipe-pagination.md',
+        markdown: parallelRootsDoc,
+      },
+    ],
+    existingBranches: new Set(),
+  });
+
+  assert.deepEqual(
+    waypoints.map(({ waypoint, action }) => ({ waypoint, action })),
+    [
+      { waypoint: 1, action: 'create' },
+      { waypoint: 2, action: 'create' },
     ],
   );
 });
