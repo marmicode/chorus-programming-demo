@@ -3,7 +3,7 @@ description: POST a JSON dispatcher payload to the Kitchen Claude Code routine A
 
 inputs:
   skill:
-    description: Skill name (or job id under .claude/routines/jobs/) to invoke. Set exactly one of skill or workflow.
+    description: Skill name (or job id under charted-loop/jobs/) to invoke. Set exactly one of skill or workflow.
     required: false
     default: ''
   workflow:
