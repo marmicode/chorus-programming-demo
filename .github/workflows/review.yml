@@ -1,0 +1,96 @@
+name: Review
+
+# Fire the charted loop review job when a pull request is marked ready, and again
+# when a commit lands on a pull request that is already ready (not a draft).
+
+on:
+  pull_request:
+    types: [ready_for_review]
+  push:
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: review-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    if: >-
+      (github.event_name == 'pull_request' &&
+        github.event.pull_request.head.ref != github.event.repository.default_branch) ||
+      (github.event_name == 'push' &&
+        github.ref != format('refs/heads/{0}', github.event.repository.default_branch))
+    runs-on: ubuntu-latest
+    outputs:
+      review: ${{ steps.pr.outputs.review }}
+      number: ${{ steps.pr.outputs.number }}
+      url: ${{ steps.pr.outputs.url }}
+      branch: ${{ steps.pr.outputs.branch }}
+      sha: ${{ steps.pr.outputs.sha }}
+      reason: ${{ steps.pr.outputs.reason }}
+    steps:
+      - name: Resolve the ready pull request
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BRANCH: ${{ github.ref_name }}
+          PUSH_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            echo "review=true" >> "$GITHUB_OUTPUT"
+            echo "number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+            echo "url=${PR_URL}" >> "$GITHUB_OUTPUT"
+            echo "branch=${HEAD_REF}" >> "$GITHUB_OUTPUT"
+            echo "sha=${HEAD_SHA}" >> "$GITHUB_OUTPUT"
+            echo "reason=Marked ready for review." >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "sha=${PUSH_SHA}" >> "$GITHUB_OUTPUT"
+          LINE="$(gh pr list --repo "$REPOSITORY" --head "$BRANCH" --state open \
+            --json number,isDraft,url \
+            --jq '[.[] | select(.isDraft == false)] | if length == 0 then "" else .[0] | [.number, .url] | @tsv end')"
+          if [ -z "$LINE" ]; then
+            echo "No open non-draft pull request for ${BRANCH}."
+            echo "review=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "review=true" >> "$GITHUB_OUTPUT"
+          echo "number=$(cut -f1 <<< "$LINE")" >> "$GITHUB_OUTPUT"
+          echo "url=$(cut -f2 <<< "$LINE")" >> "$GITHUB_OUTPUT"
+          echo "reason=A commit landed on this ready pull request." >> "$GITHUB_OUTPUT"
+
+  fire:
+    needs: resolve
+    if: needs.resolve.outputs.review == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fire review routine
+        uses: ./.github/actions/fire-claude-routine
+        env:
+          CLAUDE_CODE_ROUTINE_FIRE_TOKEN: ${{ secrets.CLAUDE_CODE_ROUTINE_FIRE_TOKEN }}
+        with:
+          skill: review
+          branch: ${{ needs.resolve.outputs.branch }}
+          args: '{"pr": ${{ needs.resolve.outputs.number }}}'
+          message: >-
+            Pull request ${{ needs.resolve.outputs.number }}: ${{ needs.resolve.outputs.url }}
+            Head SHA: ${{ needs.resolve.outputs.sha }}
+            ${{ needs.resolve.outputs.reason }}
