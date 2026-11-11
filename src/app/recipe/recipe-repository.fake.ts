@@ -1,7 +1,7 @@
 import { Provider, Service } from '@angular/core';
 import { RecipeFilter } from './recipe-filter';
 import { defer, Observable, of } from 'rxjs';
-import { Recipe } from './recipe';
+import { Recipe, RecipePage } from './recipe';
 import {
   RecipePagination,
   RecipeRepository,
@@ -16,7 +16,7 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
   search(
     { keywords, maxIngredientCount, maxStepCount }: RecipeFilter = {},
     pagination?: RecipePagination,
-  ): Observable<Recipe[]> {
+  ): Observable<RecipePage> {
     if (pagination) {
       throw new Error(`🚧 work in progress`);
     }
@@ -40,7 +40,7 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
         /* Return true if all conditions are true. */
         return conditions.every((condition) => condition());
       });
-      return recipes;
+      return { items: recipes, total: recipes.length };
     });
   }
 
