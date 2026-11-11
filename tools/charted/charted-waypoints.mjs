@@ -65,6 +65,34 @@ export function waypointBranch(designDocPath, waypoint) {
   return `${basename(designDocPath, '.md')}-waypoint-${waypoint}`;
 }
 
+/** e.g. "design-docs/001-meal-plan.md" -> "001" */
+export function designDocNumber(designDocPath) {
+  const match = basename(designDocPath, '.md').match(/^(\d+)/);
+  if (!match) {
+    throw new Error(
+      `Design doc path must start with a number: ${designDocPath}`,
+    );
+  }
+  return match[1];
+}
+
+/**
+ * e.g. prefix "refactor: 🛠️", doc 001, waypoint 1 of 3, "RecipePage + Repository"
+ * -> "refactor: 🛠️ [001 · 1/3] RecipePage + Repository"
+ *
+ * The badge stays clear of "#", which GitHub would turn into an issue link.
+ */
+export function waypointPullRequestTitle({
+  prefix,
+  designDocPath,
+  waypoint,
+  waypointCount,
+  title,
+}) {
+  const number = designDocNumber(designDocPath);
+  return `${prefix} [${number} · ${waypoint}/${waypointCount}] ${title}`;
+}
+
 /** e.g. "001-meal-plan-waypoint-2" -> {designDocStem: "001-meal-plan", waypoint: 2} */
 export function parseWaypointBranch(branch) {
   const match = branch.match(WAYPOINT_BRANCH);

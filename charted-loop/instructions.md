@@ -66,10 +66,15 @@ unavailable), then, depending on the workflow result:
 - `done`: set the pull request title, then mark it ready for review and comment with a short
   summary of the steps and commits.
 
-  The title is `<prefix>: <emoji> <design-doc waypoint title>`. Keep the design-doc title's
-  wording, and leave the waypoint number out of it. Never put `#` before a number: GitHub turns
-  `#1` into a link to an issue or pull request. Choose the prefix for the waypoint as a
-  whole, from its outcome:
+  The title is `<prefix>: <emoji> [<design-doc number> · <waypoint>/<total>] <design-doc waypoint title>`.
+  The design-doc number is the leading digits of the filename (`design-docs/001-meal-plan.md` → `001`).
+  `<waypoint>/<total>` is this waypoint's number and how many waypoints the PR Plan has
+  (`1/3` for the first of three). Keep the design-doc title's wording. Never put `#` before a
+  number: GitHub turns `#1` into a link to an issue or pull request.
+
+  Example: `refactor: 🛠️ [001 · 1/3] RecipePage + Repository`
+
+  Choose the prefix for the waypoint as a whole, from its outcome:
   - `feat: ✨` when this waypoint changes behavior and that behavior is wired up and reachable.
   - `refactor: 🛠️` otherwise (types, an unwired component, scaffolding).
 

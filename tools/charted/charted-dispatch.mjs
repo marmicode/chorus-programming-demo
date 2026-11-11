@@ -6,7 +6,7 @@
  * Usage: node charted-dispatch.mjs plan|apply [--repo owner/name] [--base main] [designDocPaths...]
  *
  * Without design doc paths, every design-docs/*.md file is considered.
- * Prints {waypoints: [{designDocPath, waypoint, title, branch, action, prUrl?}]} where action is
+ * Prints {waypoints: [{designDocPath, waypoint, waypointCount, title, branch, action, prUrl?}]} where action is
  * "create" (plan), "created" (apply) or "skip" (the branch already exists).
  */
 import { execFileSync } from 'node:child_process';
@@ -18,6 +18,7 @@ import {
   isUnblocked,
   parseWaypointDependencies,
   waypointBranch,
+  waypointPullRequestTitle,
 } from './charted-waypoints.mjs';
 
 const DESIGN_DOCS_DIR = 'design-docs';
@@ -39,6 +40,7 @@ export function planDispatch({ docs, existingBranches }) {
         return {
           designDocPath: path,
           waypoint: pr.number,
+          waypointCount: progress.prs.length,
           title: pr.title,
           branch,
           action: existingBranches.has(branch) ? 'skip' : 'create',
@@ -79,8 +81,14 @@ export function applyDispatch({ waypoints, repo, base, gh }) {
 
     const name = `waypoint ${item.waypoint} - ${item.title}`;
     // Drafts stay refactor until the loop marks the pull request ready and
-    // retitles a waypoint whose behavior is wired up to feat.
-    const title = `refactor: 🛠️ ${item.title}`;
+    // retitles a waypoint whose behavior is wired up to feat. The badge stays.
+    const title = waypointPullRequestTitle({
+      prefix: 'refactor: 🛠️',
+      designDocPath: item.designDocPath,
+      waypoint: item.waypoint,
+      waypointCount: item.waypointCount,
+      title: item.title,
+    });
     const commitSha = gh([
       'api',
       `repos/${repo}/git/commits`,

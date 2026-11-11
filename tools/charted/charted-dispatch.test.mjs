@@ -19,6 +19,7 @@ test('plans only the first waypoint of a fresh design doc', () => {
     {
       designDocPath: path,
       waypoint: 1,
+      waypointCount: 3,
       title: 'List recipes',
       branch: '001-meal-plan-waypoint-1',
       action: 'create',
@@ -114,7 +115,7 @@ test('creates a branch with a start commit and a draft pull request', () => {
   );
   assert.equal(
     prCreate[prCreate.indexOf('--title') + 1],
-    'refactor: 🛠️ List recipes',
+    'refactor: 🛠️ [001 · 1/3] List recipes',
   );
 });
 

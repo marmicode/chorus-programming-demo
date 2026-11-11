@@ -7,10 +7,12 @@ import {
 } from './charted-fixtures.mjs';
 import { parseDesignDoc } from './charted-progress.mjs';
 import {
+  designDocNumber,
   isUnblocked,
   parseWaypointBranch,
   parseWaypointDependencies,
   waypointBranch,
+  waypointPullRequestTitle,
 } from './charted-waypoints.mjs';
 
 test('parses waypoint dependencies from the PR Plan mermaid diagram', () => {
@@ -64,6 +66,37 @@ test('without explicit edges, waits for every lower-numbered waypoint', () => {
 
   assert.equal(isUnblocked(2, new Map(), progress), true);
   assert.equal(isUnblocked(3, new Map(), progress), false);
+});
+
+test('reads the design doc number from the filename', () => {
+  assert.equal(designDocNumber('design-docs/001-meal-plan.md'), '001');
+  assert.throws(
+    () => designDocNumber('design-docs/meal-plan.md'),
+    /must start with a number/,
+  );
+});
+
+test('builds a pull request title with the design doc and waypoint progress', () => {
+  assert.equal(
+    waypointPullRequestTitle({
+      prefix: 'refactor: 🛠️',
+      designDocPath: 'design-docs/001-recipe-pagination.md',
+      waypoint: 1,
+      waypointCount: 3,
+      title: 'RecipePage + Repository',
+    }),
+    'refactor: 🛠️ [001 · 1/3] RecipePage + Repository',
+  );
+  assert.equal(
+    waypointPullRequestTitle({
+      prefix: 'feat: ✨',
+      designDocPath: 'design-docs/001-recipe-pagination.md',
+      waypoint: 3,
+      waypointCount: 3,
+      title: 'RecipeSearch wiring',
+    }),
+    'feat: ✨ [001 · 3/3] RecipeSearch wiring',
+  );
 });
 
 test('round-trips waypoint branch names', () => {
