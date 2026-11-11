@@ -11,9 +11,6 @@ export interface RecipePagination {
 }
 
 export interface RecipeRepositoryDef {
-  /**
-   * @param pagination 🚧 work in progress
-   */
   search(
     filter: RecipeFilter,
     pagination?: RecipePagination,
