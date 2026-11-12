@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   input,
-  output,
+  model,
 } from '@angular/core';
 
 @Component({
@@ -11,18 +11,16 @@ import {
   template: `
     <button
       [disabled]="offset() === 0"
-      (click)="offsetChange.emit(offset() - limit())"
+      (click)="offset.set(offset() - limit())"
     >Previous</button>
     <button
       [disabled]="offset() + limit() >= total()"
-      (click)="offsetChange.emit(offset() + limit())"
+      (click)="offset.set(offset() + limit())"
     >Next</button>
   `,
 })
 export class Paginator {
-  // TIDYUP: use `model` instead
-  offset = input.required<number>();
+  offset = model.required<number>();
   limit = input.required<number>();
   total = input.required<number>();
-  offsetChange = output<number>();
 }
