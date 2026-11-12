@@ -1,24 +1,36 @@
 import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
-import { createRecipe, Recipe } from './recipe';
+import { createRecipe } from './recipe';
+import { RecipePage } from './recipe-page';
 import { RecipeFilter } from './recipe-filter';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
+export interface RecipePagination {
+  offset?: number;
+  limit?: number;
+}
+
 export interface RecipeRepositoryDef {
-  search(filter: RecipeFilter): Observable<Recipe[]>;
+  search(
+    filter: RecipeFilter,
+    pagination?: RecipePagination,
+  ): Observable<RecipePage>;
 }
 
 @Service()
 export class RecipeRepository implements RecipeRepositoryDef {
   private _httpClient = inject(HttpClient);
 
-  search({ keywords, maxIngredientCount }: RecipeFilter = {}): Observable<
-    Recipe[]
-  > {
+  search(
+    { keywords, maxIngredientCount }: RecipeFilter = {},
+    pagination?: RecipePagination,
+  ): Observable<RecipePage> {
     const params: ResponseListQueryParams = {
       embed: 'ingredients',
       ...(keywords ? { q: keywords } : {}),
+      ...(pagination?.offset != null ? { offset: pagination.offset } : {}),
+      ...(pagination?.limit != null ? { limit: pagination.limit } : {}),
     };
 
     return this._httpClient
@@ -26,8 +38,8 @@ export class RecipeRepository implements RecipeRepositoryDef {
         params,
       })
       .pipe(
-        map((response) =>
-          response.items
+        map((response) => {
+          const items = response.items
             .map((item) =>
               createRecipe({
                 id: item.id,
@@ -36,15 +48,16 @@ export class RecipeRepository implements RecipeRepositoryDef {
                 pictureUri: item.picture_uri,
                 ingredients: item.ingredients ?? [],
                 steps: [],
-              })
+              }),
             )
             /* Filter max ingredients locally meanwhile it is implemented server-side. */
             .filter((recipe) =>
               maxIngredientCount != null
                 ? recipe.ingredients.length <= maxIngredientCount
-                : true
-            )
-        )
+                : true,
+            );
+          return { items, total: response.total };
+        }),
       );
   }
 }
@@ -52,10 +65,13 @@ export class RecipeRepository implements RecipeRepositoryDef {
 type ResponseListQueryParams = {
   embed: 'ingredients' | 'steps' | 'ingredients,steps';
   q?: string;
+  offset?: number;
+  limit?: number;
 };
 
 interface RecipeListResponseDto {
   items: RecipeDto[];
+  total: number;
 }
 
 interface RecipeDto {
