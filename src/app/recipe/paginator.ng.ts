@@ -20,6 +20,7 @@ import {
   `,
 })
 export class Paginator {
+  // TIDYUP: use `model` instead
   offset = input.required<number>();
   limit = input.required<number>();
   total = input.required<number>();
