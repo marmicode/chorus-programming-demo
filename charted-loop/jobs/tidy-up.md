@@ -2,12 +2,12 @@
 
 Skills (read and follow):
 
-- `.agents/skills/angular`
-- `.agents/skills/angular-testing`
+- `.claude/skills/angular-developer`
+- `.cursor/skills/angular-testing`
 
 ## Context
 
-This branch added one or more `// TIDYUP` markers compared to base branch `charted-coding-1-design-doc` (unless the dispatcher `message` names a different base). Complete the deferred cleanup each marker describes, then remove every `// TIDYUP` comment.
+This branch added one or more `// TIDYUP` markers compared to the repository's default branch, `main` (unless the dispatcher `message` names a different base). Complete the deferred cleanup each marker describes, then remove every `// TIDYUP` comment.
 
 ## Steps
 
