@@ -5,17 +5,31 @@ import { RecipeFilter } from './recipe-filter';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
+export interface RecipePagination {
+  offset?: number;
+  limit?: number;
+}
+
 export interface RecipeRepositoryDef {
-  search(filter: RecipeFilter): Observable<Recipe[]>;
+  search(
+    filter: RecipeFilter,
+    /** @deprecated 🚧 work in progress */
+    pagination?: RecipePagination,
+  ): Observable<Recipe[]>;
 }
 
 @Service()
 export class RecipeRepository implements RecipeRepositoryDef {
   private _httpClient = inject(HttpClient);
 
-  search({ keywords, maxIngredientCount }: RecipeFilter = {}): Observable<
-    Recipe[]
-  > {
+  search(
+    { keywords, maxIngredientCount }: RecipeFilter = {},
+    pagination?: RecipePagination,
+  ): Observable<Recipe[]> {
+    if (pagination?.offset != null || pagination?.limit != null) {
+      throw new Error(`🚧 work in progress`);
+    }
+
     const params: ResponseListQueryParams = {
       embed: 'ingredients',
       ...(keywords ? { q: keywords } : {}),
