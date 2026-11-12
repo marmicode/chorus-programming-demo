@@ -19,7 +19,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
   template: `
     <wm-recipe-filter-form (filterChange)="filter.set($event)" />
     <wm-catalog>
-      @for (recipe of recipes.value(); track recipe.id) {
+      @for (recipe of recipes.value()?.items ?? []; track recipe.id) {
       <wm-recipe-preview [recipe]="recipe">
         <wm-recipe-add-button [recipe]="recipe" />
       </wm-recipe-preview>
