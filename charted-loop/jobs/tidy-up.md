@@ -55,45 +55,10 @@ Skip a convention that duplicates or nearly duplicates one already in `reference
 
 When there is at least one convention to persist and the skill does not exist yet:
 
-1. Create `.agents/skills/workspace-conventions/SKILL.md` from this template:
-
-   ```markdown
-   ---
-   name: workspace-conventions
-   description: Repo-specific conventions captured from tidy-up cleanups. Use when writing or reviewing code in this repository, before generic skills' defaults apply.
-   ---
-
-   # Workspace conventions
-
-   Conventions this repository's humans asked for. Read the relevant rows in the **Index** and follow the linked reference files.
-
-   ## How to apply
-
-   1. Match the current task against **Triggers** in the Index.
-   2. Open the linked reference under `references/` and follow its **Instructions**.
-   3. When a reference conflicts with an explicit request in the current task, follow the request.
-
-   ## Index
-
-   | Topic | Triggers | Reference |
-   | ----- | -------- | --------- |
-   ```
-
+1. Copy [`charted-loop/jobs/tidy-up/assets/workspace-conventions/SKILL.template.md`](tidy-up/assets/workspace-conventions/SKILL.template.md) to `.agents/skills/workspace-conventions/SKILL.md`.
 2. Link it for Claude Code like the other skills: `ln -s ../../.agents/skills/workspace-conventions .claude/skills/workspace-conventions`.
 
-Add each new convention as `references/<domain>/<slug>.md` (kebab-case domain such as `angular/`, `testing/`, `workflow/`; slug stable, max 64 chars), with no frontmatter, and add a row to the Index with a path relative to the skill root:
-
-```markdown
-# <Title>
-
-## Instructions
-
-<Generalized bullets>
-
-## Examples
-
-<Optional: one short before/after taken from the cleanup>
-```
+Add each new convention as `references/<domain>/<slug>.md` (kebab-case domain such as `angular/`, `testing/`, `workflow/`; slug stable, max 64 chars), from [`charted-loop/jobs/tidy-up/assets/workspace-conventions/reference.template.md`](tidy-up/assets/workspace-conventions/reference.template.md) (no frontmatter), and add a row to the Index with a path relative to the skill root.
 
 Commit convention changes separately from the cleanup, with `docs: 📝 capture workspace conventions` (plus the `Charted-Loop: tidy-up` trailer). List the captured conventions in the commit body.
 
