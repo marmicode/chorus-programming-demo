@@ -28,44 +28,77 @@ describe(RecipeSearch.name, () => {
     await expect.element(recipeHeadings).toHaveTextContent('Burger');
   });
 
-  it.todo('displays first page on load', () => {
-    // Arrange fake repository with 7 recipes.
-    // Mount RecipeSearch.
-    // Assert 5 recipe headings are visible.
-    // Assert Previous is disabled and Next is enabled.
+  it.todo('displays first page on load', async () => {
+    const { recipeHeadings, previousButton, nextButton } =
+      await mountRecipeSearch(sevenRecipes());
+
+    await expect.element(recipeHeadings).toHaveLength(5);
+    await expect.element(previousButton).toBeDisabled();
+    await expect.element(nextButton).toBeEnabled();
   });
 
-  it.todo('navigates to next page', () => {
-    // Arrange fake repository with 7 recipes.
-    // Mount RecipeSearch.
-    // Click Next.
-    // Assert 2 recipe headings are visible.
-    // Assert Previous is enabled and Next is disabled.
+  it.todo('navigates to next page', async () => {
+    const { recipeHeadings, previousButton, nextButton } =
+      await mountRecipeSearch(sevenRecipes());
+
+    await nextButton.click();
+
+    await expect.element(recipeHeadings).toHaveLength(2);
+    await expect.element(previousButton).toBeEnabled();
+    await expect.element(nextButton).toBeDisabled();
   });
 
-  it.todo('navigates back to previous page', () => {
-    // Arrange fake repository with 7 recipes.
-    // Mount RecipeSearch; click Next; click Previous.
-    // Assert 5 recipe headings from the first page are visible again.
+  it.todo('navigates back to previous page', async () => {
+    const { recipeHeadings, previousButton, nextButton } =
+      await mountRecipeSearch(sevenRecipes());
+
+    await nextButton.click();
+    await previousButton.click();
+
+    await expect.element(recipeHeadings).toHaveLength(5);
+    await expect.element(recipeHeadings.nth(0)).toHaveTextContent('Burger');
+    await expect.element(recipeHeadings.nth(1)).toHaveTextContent('Salad');
+    await expect.element(recipeHeadings.nth(2)).toHaveTextContent('Pizza');
+    await expect.element(recipeHeadings.nth(3)).toHaveTextContent('Beer');
+    await expect.element(recipeHeadings.nth(4)).toHaveTextContent('Soup');
   });
 
-  it.todo('resets to page 1 when filter changes', () => {
-    // Arrange fake repository with 7 recipes including "Burger" and "Salad".
-    // Mount RecipeSearch; click Next to reach page 2.
-    // Type "Burger" in the keywords field.
-    // Assert only "Burger" is shown and Previous is disabled.
+  it.todo('resets to page 1 when filter changes', async () => {
+    const { recipeHeadings, keywordsInput, previousButton, nextButton } =
+      await mountRecipeSearch(sevenRecipes());
+
+    await nextButton.click();
+    await keywordsInput.fill('Burger');
+
+    await expect.element(recipeHeadings).toHaveLength(1);
+    await expect.element(recipeHeadings).toHaveTextContent('Burger');
+    await expect.element(previousButton).toBeDisabled();
   });
 });
 
-async function mountRecipeSearch() {
-  const { mount, recipeRepoFake } = await setUpRecipeSearch();
+function sevenRecipes() {
+  return [
+    'Burger',
+    'Salad',
+    'Pizza',
+    'Beer',
+    'Soup',
+    'Cake',
+    'Pasta',
+  ].map((name) => recipeMother.withBasicInfo(name).build());
+}
 
-  recipeRepoFake.setRecipes([
+async function mountRecipeSearch(
+  recipes = [
     recipeMother.withBasicInfo('Burger').build(),
     recipeMother.withBasicInfo('Salad').build(),
     recipeMother.withBasicInfo('Pizza').build(),
     recipeMother.withBasicInfo('Beer').build(),
-  ]);
+  ],
+) {
+  const { mount, recipeRepoFake } = await setUpRecipeSearch();
+
+  recipeRepoFake.setRecipes(recipes);
 
   return mount();
 }
@@ -80,6 +113,8 @@ async function setUpRecipeSearch() {
       return {
         keywordsInput: page.getByRole('textbox'),
         recipeHeadings: page.getByRole('heading', { level: 2 }),
+        previousButton: page.getByRole('button', { name: 'Previous' }),
+        nextButton: page.getByRole('button', { name: 'Next' }),
       };
     },
   };
