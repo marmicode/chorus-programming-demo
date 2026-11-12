@@ -9,11 +9,11 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
   private _pauseGate = new PauseGate();
   private _recipes: Recipe[] = [];
 
-  search({
-    keywords,
-    maxIngredientCount,
-    maxStepCount,
-  }: RecipeFilter = {}): Observable<Recipe[]> {
+  search(
+    { keywords, maxIngredientCount, maxStepCount }: RecipeFilter = {},
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+    pagination?: any,
+  ): Observable<Recipe[]> {
     return defer(async () => {
       await this._pauseGate.whenResumed;
       const recipes = this._recipes.filter((recipe) => {
