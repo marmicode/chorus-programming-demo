@@ -14,7 +14,6 @@ export interface RecipePagination {
 export interface RecipeRepositoryDef {
   search(
     filter: RecipeFilter,
-    /** @deprecated 🚧 work in progress */
     pagination?: RecipePagination,
   ): Observable<RecipePage>;
 }
