@@ -28,3 +28,19 @@ export function createIngredient(ingredient: Ingredient): Ingredient {
 export function createQuantity(quantity: Quantity): Quantity {
   return quantity;
 }
+
+/**
+ * @deprecated 🚧 work in progress
+ */
+export interface RecipePage {
+  items: Recipe[];
+  total: number;
+}
+
+/**
+ * @deprecated 🚧 work in progress
+ */
+export interface RecipePagination {
+  offset: number;
+  limit: number;
+}
