@@ -4,7 +4,7 @@ import { t } from '../testing/ng-test-utils';
 import { Paginator } from './paginator.ng';
 
 describe(Paginator.name, () => {
-  it.todo('Disables Previous on first page', async () => {
+  it('Disables Previous on first page', async () => {
     const { previousButton } = await mountPaginator({
       offset: 0,
       limit: 5,
@@ -14,7 +14,7 @@ describe(Paginator.name, () => {
     await expect.element(previousButton).toBeDisabled();
   });
 
-  it.todo('Disables Next on last page', async () => {
+  it('Disables Next on last page', async () => {
     const { nextButton } = await mountPaginator({
       offset: 5,
       limit: 5,
@@ -24,7 +24,7 @@ describe(Paginator.name, () => {
     await expect.element(nextButton).toBeDisabled();
   });
 
-  it.todo('Emits offsetChange when Next is clicked', async () => {
+  it('Emits offsetChange when Next is clicked', async () => {
     const { nextButton, offsetChange } = await mountPaginator({
       offset: 0,
       limit: 5,
@@ -36,7 +36,7 @@ describe(Paginator.name, () => {
     expect(offsetChange).toHaveBeenCalledExactlyOnceWith(5);
   });
 
-  it.todo('Emits offsetChange when Previous is clicked', async () => {
+  it('Emits offsetChange when Previous is clicked', async () => {
     const { previousButton, offsetChange } = await mountPaginator({
       offset: 5,
       limit: 5,
