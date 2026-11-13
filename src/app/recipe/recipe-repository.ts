@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
-import { createRecipe, Recipe, RecipePagination } from './recipe';
+import { createRecipe, RecipePage, RecipePagination } from './recipe';
 import { RecipeFilter } from './recipe-filter';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
@@ -9,7 +9,7 @@ export interface RecipeRepositoryDef {
   search(
     filter: RecipeFilter,
     pagination?: RecipePagination,
-  ): Observable<Recipe[]>;
+  ): Observable<RecipePage>;
 }
 
 @Service()
@@ -19,7 +19,7 @@ export class RecipeRepository implements RecipeRepositoryDef {
   search(
     { keywords, maxIngredientCount }: RecipeFilter = {},
     pagination?: RecipePagination,
-  ): Observable<Recipe[]> {
+  ): Observable<RecipePage> {
     const params: ResponseListQueryParams = {
       embed: 'ingredients',
       ...(keywords ? { q: keywords } : {}),
@@ -33,8 +33,9 @@ export class RecipeRepository implements RecipeRepositoryDef {
         params,
       })
       .pipe(
-        map((response) =>
-          response.items
+        map((response) => ({
+          total: response.total,
+          items: response.items
             .map((item) =>
               createRecipe({
                 id: item.id,
@@ -43,15 +44,15 @@ export class RecipeRepository implements RecipeRepositoryDef {
                 pictureUri: item.picture_uri,
                 ingredients: item.ingredients ?? [],
                 steps: [],
-              })
+              }),
             )
             /* Filter max ingredients locally meanwhile it is implemented server-side. */
             .filter((recipe) =>
               maxIngredientCount != null
                 ? recipe.ingredients.length <= maxIngredientCount
-                : true
-            )
-        )
+                : true,
+            ),
+        })),
       );
   }
 }
@@ -64,6 +65,7 @@ type ResponseListQueryParams = {
 };
 
 interface RecipeListResponseDto {
+  total: number;
   items: RecipeDto[];
 }
 
