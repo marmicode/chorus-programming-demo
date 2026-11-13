@@ -3,3 +3,43 @@ reviews:
   profile: assertive
   auto_review:
     enabled: true
+  pre_merge_checks:
+    custom_checks:
+      - name: 'Design doc alignment'
+        mode: 'error'
+        instructions: |
+          Check that the code changes of this pull request implement exactly its waypoint's
+          part of the design doc: nothing more, nothing missing.
+
+          Find the waypoint:
+          - Waypoint branches are named `<design-doc-stem>-waypoint-<N>`
+            (e.g. `001-meal-plan-waypoint-2`). The design doc is `design-docs/<design-doc-stem>.md`
+            at this pull request's head.
+          - The waypoint is the section of that doc's "PR Plan" whose summary reads `PR#<N> — <title>`,
+            up to its closing `</details>`. "PR#N" is a waypoint number, not a GitHub pull request.
+          - If the head branch does not match that pattern, or the design doc or waypoint section
+            does not exist, this check passes as not applicable.
+
+          Scope is the waypoint section's Tasks and Testing Strategy. Use the rest of the design
+          doc (Desired Behavior, Design, Implementation Details) only to interpret what those
+          tasks and tests mean, never to widen the scope. Compare against the whole pull request
+          diff, not only the latest commit.
+
+          Fail when anything is missing:
+          - A task of the waypoint is not implemented by the code changes.
+          - A Testing Strategy entry of the waypoint has no matching real test (an `it(...)` whose
+            title matches the entry, with assertions that cover its bullets). `it.todo` does not count.
+
+          Fail when there is anything more:
+          - Behavior, public APIs, components, services, routes, or files that no task or test of
+            this waypoint calls for, including work that belongs to another waypoint.
+          - Refactors or changes to unrelated code.
+          - Tests for behavior outside this waypoint's Testing Strategy.
+          - Design doc edits other than progress markers for this waypoint (`- [ ]` → `- [x]`,
+            `🚧` → `✅`).
+
+          Allowed without failing: imports, wiring, types, test fakes and fixtures, and small
+          adjustments strictly needed to implement this waypoint's tasks and tests.
+
+          When failing, list each mismatch as "Missing: <task or test>" or
+          "Extra: <file and what it adds>".
