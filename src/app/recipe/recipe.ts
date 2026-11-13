@@ -28,3 +28,8 @@ export function createIngredient(ingredient: Ingredient): Ingredient {
 export function createQuantity(quantity: Quantity): Quantity {
   return quantity;
 }
+
+export interface RecipePage {
+  items: Recipe[];
+  total: number;
+}

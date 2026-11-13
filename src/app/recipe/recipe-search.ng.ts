@@ -11,6 +11,7 @@ import { RecipeFilterForm } from './recipe-filter-form.ng';
 import { RecipePreview } from './recipe-preview.ng';
 import { RecipeRepository } from './recipe-repository';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,9 +21,9 @@ import { rxResource } from '@angular/core/rxjs-interop';
     <wm-recipe-filter-form (filterChange)="filter.set($event)" />
     <wm-catalog>
       @for (recipe of recipes.value(); track recipe.id) {
-      <wm-recipe-preview [recipe]="recipe">
-        <wm-recipe-add-button [recipe]="recipe" />
-      </wm-recipe-preview>
+        <wm-recipe-preview [recipe]="recipe">
+          <wm-recipe-add-button [recipe]="recipe" />
+        </wm-recipe-preview>
       }
     </wm-catalog>
   `,
@@ -31,7 +32,10 @@ export class RecipeSearch {
   filter = signal<RecipeFilter>({});
   recipes = rxResource({
     params: this.filter,
-    stream: ({ params }) => this._recipeRepository.search(params),
+    stream: ({ params }) =>
+      this._recipeRepository
+        .search({ filter: params })
+        .pipe(map((page) => page.items)),
   });
 
   private _recipeRepository = inject(RecipeRepository);
