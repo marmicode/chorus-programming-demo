@@ -1,8 +1,12 @@
 import { Provider, Service } from '@angular/core';
-import { RecipeFilter } from './recipe-filter';
 import { defer, Observable, of } from 'rxjs';
 import { Recipe } from './recipe';
-import { RecipeRepository, RecipeRepositoryDef } from './recipe-repository';
+import {
+  RecipePage,
+  RecipeRepository,
+  RecipeRepositoryDef,
+  RecipeSearchParams,
+} from './recipe-repository';
 
 @Service()
 export class RecipeRepositoryFake implements RecipeRepositoryDef {
@@ -10,10 +14,10 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
   private _recipes: Recipe[] = [];
 
   search({
-    keywords,
-    maxIngredientCount,
-    maxStepCount,
-  }: RecipeFilter = {}): Observable<Recipe[]> {
+    filter: { keywords, maxIngredientCount, maxStepCount } = {},
+    offset = 0,
+    limit,
+  }: RecipeSearchParams = {}): Observable<RecipePage> {
     return defer(async () => {
       await this._pauseGate.whenResumed;
       const recipes = this._recipes.filter((recipe) => {
@@ -33,7 +37,13 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
         /* Return true if all conditions are true. */
         return conditions.every((condition) => condition());
       });
-      return recipes;
+      return {
+        items: recipes.slice(
+          offset,
+          limit != null ? offset + limit : undefined,
+        ),
+        total: recipes.length,
+      };
     });
   }
 
