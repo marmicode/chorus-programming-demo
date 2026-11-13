@@ -29,9 +29,6 @@ export function createQuantity(quantity: Quantity): Quantity {
   return quantity;
 }
 
-/**
- * @deprecated 🚧 work in progress
- */
 export interface RecipePage {
   items: Recipe[];
   total: number;
