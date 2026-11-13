@@ -58,10 +58,10 @@ Never put `#` before a number in a commit subject or pull request title (`waypoi
 2. Never open a new pull request: the dispatcher already opened a draft pull request for each
    waypoint branch.
 
-## 6. Report (charted-autopilot only)
+## 6. Report (charted-autopilot and charted-autopilot-light only)
 
 Find the pull request of `branch` (`gh pr view <branch>`, or the GitHub tools if `gh` is
-unavailable), then, depending on the workflow result:
+unavailable), then, depending on the workflow (or job) result:
 
 - `done`: set the pull request title, then mark it ready for review and comment with a short
   summary of the steps and commits.

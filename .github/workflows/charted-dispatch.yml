@@ -53,7 +53,8 @@ jobs:
         env:
           CLAUDE_CODE_ROUTINE_FIRE_TOKEN: ${{ secrets.CLAUDE_CODE_ROUTINE_FIRE_TOKEN }}
         with:
-          workflow: charted-autopilot
+          # The charted-autopilot workflow is more robust; charted-autopilot-light is a skill — faster, better for the demo.
+          skill: charted-autopilot-light
           branch: ${{ matrix.waypoint.branch }}
           args: >-
             {"designDocPath": ${{ toJSON(matrix.waypoint.designDocPath) }},
