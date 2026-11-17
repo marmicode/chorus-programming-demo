@@ -11,3 +11,5 @@
 {"createdAt":"2026-11-17T16:31:54.135Z","type":"tag","value":"low"}
 
 {"createdAt":"2026-11-17T16:34:14.218Z","type":"untag","value":"complexity:simple"}
+
+{"createdAt":"2026-11-17T16:34:27.485Z","type":"untag","value":"change-type:structural"}
