@@ -3,7 +3,7 @@ import {
   Component,
   computed,
   input,
-  output,
+  model,
 } from '@angular/core';
 
 @Component({
@@ -13,14 +13,14 @@ import {
     <button
       type="button"
       [disabled]="isPreviousDisabled()"
-      (click)="offsetChange.emit(offset() - limit())"
+      (click)="offset.set(offset() - limit())"
     >
       Previous
     </button>
     <button
       type="button"
       [disabled]="isNextDisabled()"
-      (click)="offsetChange.emit(offset() + limit())"
+      (click)="offset.set(offset() + limit())"
     >
       Next
     </button>
@@ -34,11 +34,9 @@ import {
   `,
 })
 export class Paginator {
-  // TIDYUP: use `model` instead
-  offset = input.required<number>();
+  offset = model.required<number>();
   limit = input.required<number>();
   total = input.required<number>();
-  offsetChange = output<number>();
 
   isPreviousDisabled = computed(() => this.offset() === 0);
   isNextDisabled = computed(() => this.offset() + this.limit() >= this.total());
