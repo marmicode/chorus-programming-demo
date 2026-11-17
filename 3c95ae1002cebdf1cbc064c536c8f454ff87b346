@@ -9,3 +9,5 @@
 {"createdAt":"2026-11-17T16:31:46.789Z","type":"tag","value":"structural"}
 
 {"createdAt":"2026-11-17T16:31:54.135Z","type":"tag","value":"low"}
+
+{"createdAt":"2026-11-17T16:34:14.218Z","type":"untag","value":"complexity:simple"}
