@@ -63,7 +63,7 @@ Never put `#` before a number in a commit subject or pull request title (`waypoi
 Find the pull request of `branch` (`gh pr view <branch>`, or the GitHub tools if `gh` is
 unavailable), then, depending on the workflow (or job) result:
 
-- `done`: set the pull request title, then mark it ready for review and comment with a short
+- `done`: mark the PR as ready for review and comment with a short
   summary of the steps and commits.
 
   The title is `<prefix>: <emoji> [<design-doc number> · <waypoint>/<total>] <design-doc waypoint title>`.
