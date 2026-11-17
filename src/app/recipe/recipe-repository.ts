@@ -5,20 +5,35 @@ import { RecipeFilter } from './recipe-filter';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
+export interface RecipePage {
+  items: Recipe[];
+  total: number;
+}
+
+export interface RecipeSearchParams {
+  filter?: RecipeFilter;
+  offset?: number;
+  limit?: number;
+}
+
 export interface RecipeRepositoryDef {
-  search(filter: RecipeFilter): Observable<Recipe[]>;
+  search(params?: RecipeSearchParams): Observable<RecipePage>;
 }
 
 @Service()
 export class RecipeRepository implements RecipeRepositoryDef {
   private _httpClient = inject(HttpClient);
 
-  search({ keywords, maxIngredientCount }: RecipeFilter = {}): Observable<
-    Recipe[]
-  > {
+  search({
+    filter: { keywords, maxIngredientCount } = {},
+    offset,
+    limit,
+  }: RecipeSearchParams = {}): Observable<RecipePage> {
     const params: ResponseListQueryParams = {
       embed: 'ingredients',
       ...(keywords ? { q: keywords } : {}),
+      ...(offset != null ? { offset } : {}),
+      ...(limit != null ? { limit } : {}),
     };
 
     return this._httpClient
@@ -26,8 +41,9 @@ export class RecipeRepository implements RecipeRepositoryDef {
         params,
       })
       .pipe(
-        map((response) =>
-          response.items
+        map((response) => ({
+          total: response.total,
+          items: response.items
             .map((item) =>
               createRecipe({
                 id: item.id,
@@ -43,8 +59,8 @@ export class RecipeRepository implements RecipeRepositoryDef {
               maxIngredientCount != null
                 ? recipe.ingredients.length <= maxIngredientCount
                 : true
-            )
-        )
+            ),
+        }))
       );
   }
 }
@@ -52,10 +68,13 @@ export class RecipeRepository implements RecipeRepositoryDef {
 type ResponseListQueryParams = {
   embed: 'ingredients' | 'steps' | 'ingredients,steps';
   q?: string;
+  offset?: number;
+  limit?: number;
 };
 
 interface RecipeListResponseDto {
   items: RecipeDto[];
+  total: number;
 }
 
 interface RecipeDto {
