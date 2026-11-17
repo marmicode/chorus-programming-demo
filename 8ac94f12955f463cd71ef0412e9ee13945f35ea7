@@ -13,3 +13,5 @@
 {"createdAt":"2026-11-17T16:32:15.664Z","type":"tag","value":"structural"}
 
 {"createdAt":"2026-11-17T16:32:22.217Z","type":"tag","value":"low"}
+
+{"createdAt":"2026-11-17T16:34:42.249Z","type":"untag","value":"complexity:simple"}
