@@ -5,6 +5,7 @@
   "scripts": {
     "start": "nx serve",
     "build": "nx build",
+    "limbo": "tools/limbo.sh",
     "test": "nx test"
   },
   "private": true,
