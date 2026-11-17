@@ -28,7 +28,7 @@ describe(RecipeSearch.name, () => {
     await expect.element(recipeHeadings).toHaveTextContent('Burger');
   });
 
-  it.todo('displays first page on load', async () => {
+  it('displays first page on load', async () => {
     const { recipeHeadings, previousButton, nextButton } =
       await mountRecipeSearchWithSevenRecipes();
 
@@ -37,7 +37,7 @@ describe(RecipeSearch.name, () => {
     await expect.element(nextButton).toBeEnabled();
   });
 
-  it.todo('navigates to next page', async () => {
+  it('navigates to next page', async () => {
     const { recipeHeadings, previousButton, nextButton } =
       await mountRecipeSearchWithSevenRecipes();
 
@@ -48,7 +48,7 @@ describe(RecipeSearch.name, () => {
     await expect.element(nextButton).toBeDisabled();
   });
 
-  it.todo('navigates back to previous page', async () => {
+  it('navigates back to previous page', async () => {
     const { recipeHeadings, previousButton, nextButton } =
       await mountRecipeSearchWithSevenRecipes();
 
@@ -59,7 +59,7 @@ describe(RecipeSearch.name, () => {
     await expect.element(recipeHeadings.nth(0)).toHaveTextContent('Burger');
   });
 
-  it.todo('resets to page 1 when filter changes', async () => {
+  it('resets to page 1 when filter changes', async () => {
     const { recipeHeadings, previousButton, nextButton, keywordsInput } =
       await mountRecipeSearchWithSevenRecipes();
 
