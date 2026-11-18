@@ -33,6 +33,30 @@ describe(Paginator.name, () => {
 
     expect(offsetChange).toHaveBeenCalledExactlyOnceWith(0);
   });
+
+  it.todo('navigates to next page with right arrow key', () => {
+    // mount Paginator with offset: 0, limit: 5, total: 10 and capture offsetChange
+    // press ArrowRight
+    // assert offsetChange emits 5
+  });
+
+  it.todo('navigates to previous page with left arrow key', () => {
+    // mount Paginator with offset: 5, limit: 5, total: 10 and capture offsetChange
+    // press ArrowLeft
+    // assert offsetChange emits 0
+  });
+
+  it.todo('ignores arrow keys when navigation is disabled', () => {
+    // mount Paginator with offset: 0, limit: 5, total: 5 and capture offsetChange
+    // press ArrowLeft and ArrowRight
+    // assert offsetChange does not emit
+  });
+
+  it.todo('ignores arrow keys while typing in a form field', () => {
+    // mount Paginator with offset: 0, limit: 5, total: 10 next to a text input and capture offsetChange
+    // focus the input and press ArrowRight
+    // assert offsetChange does not emit
+  });
 });
 
 async function mountPaginator({ offset }: { offset: number }) {
