@@ -74,15 +74,15 @@ flowchart LR
 </details>
 
 <details>
-<summary>🚧 PR#2 — Paginator component</summary>
+<summary>✅ PR#2 — Paginator component</summary>
 
 ## Tasks
 
 - [x] Create `Paginator` component with inputs `offset`, `limit`, `total` and output `offsetChange`.
 - [x] `Paginator` disables Previous when `offset === 0`; disables Next when `offset + limit >= total`.
-- [ ] Render Previous / Next with Angular Material buttons (`MatButton`).
-- [ ] Listen to `keydown` on `document` via a host listener: `ArrowLeft` goes to Previous, `ArrowRight` goes to Next.
-- [ ] Ignore arrow keys when the matching button is disabled or when the event target is an editable element (`input`, `textarea`, `select`, `contenteditable`).
+- [x] Render Previous / Next with Angular Material buttons (`MatButton`).
+- [x] Listen to `keydown` on `document` via a host listener: `ArrowLeft` goes to Previous, `ArrowRight` goes to Next.
+- [x] Ignore arrow keys when the matching button is disabled or when the event target is an editable element (`input`, `textarea`, `select`, `contenteditable`).
 
 ## Testing Strategy
 
@@ -108,25 +108,25 @@ flowchart LR
 - Click Previous.
 - Assert `offsetChange` emits `0`.
 
-### 🚧 Navigates to next page with Right arrow key
+### ✅ Navigates to next page with Right arrow key
 
 - Mount `Paginator` with `offset: 0`, `limit: 5`, `total: 10` and capture `offsetChange`.
 - Press `ArrowRight`.
 - Assert `offsetChange` emits `5`.
 
-### 🚧 Navigates to previous page with Left arrow key
+### ✅ Navigates to previous page with Left arrow key
 
 - Mount `Paginator` with `offset: 5`, `limit: 5`, `total: 10` and capture `offsetChange`.
 - Press `ArrowLeft`.
 - Assert `offsetChange` emits `0`.
 
-### 🚧 Ignores arrow keys when navigation is disabled
+### ✅ Ignores arrow keys when navigation is disabled
 
 - Mount `Paginator` with `offset: 0`, `limit: 5`, `total: 5` and capture `offsetChange`.
 - Press `ArrowLeft` and `ArrowRight`.
 - Assert `offsetChange` does not emit.
 
-### 🚧 Ignores arrow keys while typing in a form field
+### ✅ Ignores arrow keys while typing in a form field
 
 - Mount `Paginator` with `offset: 0`, `limit: 5`, `total: 10` next to a text input and capture `offsetChange`.
 - Focus the input and press `ArrowRight`.
