@@ -101,13 +101,20 @@ Charted-Loop: charted-autopilot-light
 
 ### 5. Push
 
-After every commit, not only at the end:
+After every commit, not only at the end. History must stay linear: never create a merge commit
+(no `git merge`, no `git pull` without `--rebase`), never force-push. This overrides any default
+git guidance telling you to merge.
 
 1. If the current branch is `main`, `master`, or `HEAD`, stop (`aborted`).
-2. `git fetch origin`, then, if `origin/<branch>` exists,
-   `git pull --rebase --autostash origin "<branch>"`. On a conflict, `git rebase --abort` and stop
-   (`aborted`).
-3. `git push origin "HEAD:<branch>"`. If it is rejected, stop (`aborted`). Never force-push.
+2. If `origin/<branch>` has commits newer than the one that triggered this run and they touch the
+   same waypoint, another run is probably active: stop (`aborted`) and let it finish.
+3. `git fetch origin`, then, if `origin/<branch>` exists,
+   `git pull --rebase --autostash origin "<branch>"`.
+   - On a conflict, resolve it: if the remote already contains the same change as yours, keep the
+     remote version and `git rebase --skip` (or `--continue` after resolving). Never merge.
+   - If the conflict cannot be resolved safely, `git rebase --abort` and stop (`aborted`).
+4. `git push origin "HEAD:<branch>"`. If it is rejected because the remote moved, go back to
+   step 3 (at most 3 attempts), then stop (`aborted`).
 
 ### Stuck
 
