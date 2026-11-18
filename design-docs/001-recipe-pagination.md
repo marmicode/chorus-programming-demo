@@ -20,6 +20,9 @@
 - [ ] Previous is disabled on page 1; Next is disabled on the last page (no more recipes available).
 - [ ] Clicking Next fetches and displays the next 5 recipes.
 - [ ] Clicking Previous fetches and displays the previous 5 recipes.
+- [ ] Pressing the Right arrow key behaves like clicking Next; pressing the Left arrow key behaves like clicking Previous.
+- [ ] Arrow keys do nothing when the matching button is disabled.
+- [ ] Arrow keys do nothing while the user is typing in a form field (e.g. keywords), so text caret movement is unaffected.
 - [ ] Changing any filter (keywords, max ingredients) resets to page 1 and fetches fresh results.
 - [ ] Scroll position is unchanged when navigating between pages.
 - [ ] Existing filter and add-to-meal-plan behavior on each recipe card remains unchanged.
@@ -27,7 +30,8 @@
 # Design
 
 - `RecipeSearch` owns filter state, an `offset` signal, and wires `rxResource` to fetch a page of recipes.
-- `Paginator` component renders Previous / Next buttons.
+- `Paginator` component renders Previous / Next buttons using Angular Material buttons.
+- `Paginator` listens to Left / Right arrow keys and navigates like the Previous / Next buttons.
 - `Paginator` inputs: `offset`, `limit`, `total`. Output: `offsetChange`.
 - `Paginator` derives disabled state internally: Previous when `offset === 0`, Next when `offset + limit >= total`.
 - `RecipeRepository.search()` accepts filter + pagination params (`offset`, `limit`) and returns a `RecipePage`.
@@ -70,12 +74,15 @@ flowchart LR
 </details>
 
 <details>
-<summary>✅ PR#2 — Paginator component</summary>
+<summary>🚧 PR#2 — Paginator component</summary>
 
 ## Tasks
 
 - [x] Create `Paginator` component with inputs `offset`, `limit`, `total` and output `offsetChange`.
 - [x] `Paginator` disables Previous when `offset === 0`; disables Next when `offset + limit >= total`.
+- [ ] Render Previous / Next with Angular Material buttons (`MatButton`).
+- [ ] Listen to `keydown` on `document` via a host listener: `ArrowLeft` goes to Previous, `ArrowRight` goes to Next.
+- [ ] Ignore arrow keys when the matching button is disabled or when the event target is an editable element (`input`, `textarea`, `select`, `contenteditable`).
 
 ## Testing Strategy
 
@@ -100,6 +107,30 @@ flowchart LR
 - Mount `Paginator` with `offset: 5`, `limit: 5`, `total: 10` and capture `offsetChange`.
 - Click Previous.
 - Assert `offsetChange` emits `0`.
+
+### 🚧 Navigates to next page with Right arrow key
+
+- Mount `Paginator` with `offset: 0`, `limit: 5`, `total: 10` and capture `offsetChange`.
+- Press `ArrowRight`.
+- Assert `offsetChange` emits `5`.
+
+### 🚧 Navigates to previous page with Left arrow key
+
+- Mount `Paginator` with `offset: 5`, `limit: 5`, `total: 10` and capture `offsetChange`.
+- Press `ArrowLeft`.
+- Assert `offsetChange` emits `0`.
+
+### 🚧 Ignores arrow keys when navigation is disabled
+
+- Mount `Paginator` with `offset: 0`, `limit: 5`, `total: 5` and capture `offsetChange`.
+- Press `ArrowLeft` and `ArrowRight`.
+- Assert `offsetChange` does not emit.
+
+### 🚧 Ignores arrow keys while typing in a form field
+
+- Mount `Paginator` with `offset: 0`, `limit: 5`, `total: 10` next to a text input and capture `offsetChange`.
+- Focus the input and press `ArrowRight`.
+- Assert `offsetChange` does not emit.
 
 </details>
 
