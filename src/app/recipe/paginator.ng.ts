@@ -11,6 +11,9 @@ import { MatButtonModule } from '@angular/material/button';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'wm-paginator',
   imports: [MatButtonModule],
+  host: {
+    '(document:keydown)': 'handleKeydown($event)',
+  },
   template: `
     <button
       matButton
@@ -34,8 +37,28 @@ export class Paginator {
   total = input.required<number>();
   offsetChange = output<number>();
 
+  protected handleKeydown(event: KeyboardEvent) {
+    if (isEditable(event.target)) {
+      return;
+    }
+
+    if (event.key === 'ArrowLeft' && !this.previousDisabled()) {
+      this.offsetChange.emit(this.offset() - this.limit());
+    } else if (event.key === 'ArrowRight' && !this.nextDisabled()) {
+      this.offsetChange.emit(this.offset() + this.limit());
+    }
+  }
+
   protected previousDisabled = computed(() => this.offset() === 0);
   protected nextDisabled = computed(
     () => this.offset() + this.limit() >= this.total(),
+  );
+}
+
+function isEditable(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable ||
+      ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
   );
 }

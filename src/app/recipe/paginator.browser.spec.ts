@@ -1,7 +1,28 @@
+import { Component, input, output } from '@angular/core';
 import { describe, expect, it, vi } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { t } from '../testing/ng-test-utils';
 import { Paginator } from './paginator.ng';
+
+@Component({
+  selector: 'wm-paginator-with-input',
+  imports: [Paginator],
+  template: `
+    <input type="text" />
+    <wm-paginator
+      [offset]="offset()"
+      [limit]="limit()"
+      [total]="total()"
+      (offsetChange)="offsetChange.emit($event)"
+    />
+  `,
+})
+class PaginatorWithInput {
+  offset = input.required<number>();
+  limit = input.required<number>();
+  total = input.required<number>();
+  offsetChange = output<number>();
+}
 
 describe(Paginator.name, () => {
   it('disables previous on first page', async () => {
@@ -34,36 +55,55 @@ describe(Paginator.name, () => {
     expect(offsetChange).toHaveBeenCalledExactlyOnceWith(0);
   });
 
-  it.todo('navigates to next page with right arrow key', () => {
-    // mount Paginator with offset: 0, limit: 5, total: 10 and capture offsetChange
-    // press ArrowRight
-    // assert offsetChange emits 5
+  it('navigates to next page with right arrow key', async () => {
+    const { offsetChange } = await mountPaginator({ offset: 0 });
+
+    await userEvent.keyboard('{ArrowRight}');
+
+    expect(offsetChange).toHaveBeenCalledExactlyOnceWith(5);
   });
 
-  it.todo('navigates to previous page with left arrow key', () => {
-    // mount Paginator with offset: 5, limit: 5, total: 10 and capture offsetChange
-    // press ArrowLeft
-    // assert offsetChange emits 0
+  it('navigates to previous page with left arrow key', async () => {
+    const { offsetChange } = await mountPaginator({ offset: 5 });
+
+    await userEvent.keyboard('{ArrowLeft}');
+
+    expect(offsetChange).toHaveBeenCalledExactlyOnceWith(0);
   });
 
-  it.todo('ignores arrow keys when navigation is disabled', () => {
-    // mount Paginator with offset: 0, limit: 5, total: 5 and capture offsetChange
-    // press ArrowLeft and ArrowRight
-    // assert offsetChange does not emit
+  it('ignores arrow keys when navigation is disabled', async () => {
+    const { offsetChange } = await mountPaginator({ offset: 0, total: 5 });
+
+    await userEvent.keyboard('{ArrowLeft}{ArrowRight}');
+
+    expect(offsetChange).not.toHaveBeenCalled();
   });
 
-  it.todo('ignores arrow keys while typing in a form field', () => {
-    // mount Paginator with offset: 0, limit: 5, total: 10 next to a text input and capture offsetChange
-    // focus the input and press ArrowRight
-    // assert offsetChange does not emit
+  it('ignores arrow keys while typing in a form field', async () => {
+    const offsetChange = vi.fn();
+    await t.mount(PaginatorWithInput, {
+      inputs: { offset: 0, limit: 5, total: 10 },
+      outputs: { offsetChange },
+    });
+
+    await page.getByRole('textbox').click();
+    await userEvent.keyboard('{ArrowRight}');
+
+    expect(offsetChange).not.toHaveBeenCalled();
   });
 });
 
-async function mountPaginator({ offset }: { offset: number }) {
+async function mountPaginator({
+  offset,
+  total = 10,
+}: {
+  offset: number;
+  total?: number;
+}) {
   const offsetChange = vi.fn();
 
   await t.mount(Paginator, {
-    inputs: { offset, limit: 5, total: 10 },
+    inputs: { offset, limit: 5, total },
     outputs: { offsetChange },
   });
 
