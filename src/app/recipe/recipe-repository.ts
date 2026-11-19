@@ -1,34 +1,35 @@
 import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
-import { createRecipe, Recipe } from './recipe';
+import { createRecipe } from './recipe';
 import { RecipeFilter } from './recipe-filter';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { createRecipePage, RecipePage } from './recipe-page';
+
+export interface RecipeSearchCriteria {
+  filter?: RecipeFilter;
+  offset?: number;
+  limit?: number;
+}
 
 export interface RecipeRepositoryDef {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  search(filter: RecipeFilter, pagination?: any): Observable<Recipe[]>;
+  search(criteria?: RecipeSearchCriteria): Observable<RecipePage>;
 }
 
 @Service()
 export class RecipeRepository implements RecipeRepositoryDef {
   private _httpClient = inject(HttpClient);
 
-  search(
-    { keywords, maxIngredientCount }: RecipeFilter = {},
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pagination?: any,
-  ): Observable<Recipe[]> {
+  search({
+    filter: { keywords, maxIngredientCount } = {},
+    offset,
+    limit,
+  }: RecipeSearchCriteria = {}): Observable<RecipePage> {
     const params: ResponseListQueryParams = {
       embed: 'ingredients',
       ...(keywords ? { q: keywords } : {}),
-      /* Not used yet: we paginate client-side for now (see PaginationEngineService). */
-      ...(pagination?.page
-        ? {
-            _page: pagination.page,
-            _per_page: pagination.perPage ?? pagination.size ?? 5,
-          }
-        : {}),
+      ...(offset != null ? { offset } : {}),
+      ...(limit != null ? { limit } : {}),
     };
 
     return this._httpClient
@@ -37,24 +38,27 @@ export class RecipeRepository implements RecipeRepositoryDef {
       })
       .pipe(
         map((response) =>
-          response.items
-            .map((item) =>
-              createRecipe({
-                id: item.id,
-                name: item.name,
-                description: null,
-                pictureUri: item.picture_uri,
-                ingredients: item.ingredients ?? [],
-                steps: [],
-              })
-            )
-            /* Filter max ingredients locally meanwhile it is implemented server-side. */
-            .filter((recipe) =>
-              maxIngredientCount != null
-                ? recipe.ingredients.length <= maxIngredientCount
-                : true
-            )
-        )
+          createRecipePage({
+            total: response.total,
+            items: response.items
+              .map((item) =>
+                createRecipe({
+                  id: item.id,
+                  name: item.name,
+                  description: null,
+                  pictureUri: item.picture_uri,
+                  ingredients: item.ingredients ?? [],
+                  steps: [],
+                }),
+              )
+              /* Filter max ingredients locally meanwhile it is implemented server-side. */
+              .filter((recipe) =>
+                maxIngredientCount != null
+                  ? recipe.ingredients.length <= maxIngredientCount
+                  : true,
+              ),
+          }),
+        ),
       );
   }
 }
@@ -62,12 +66,13 @@ export class RecipeRepository implements RecipeRepositoryDef {
 type ResponseListQueryParams = {
   embed: 'ingredients' | 'steps' | 'ingredients,steps';
   q?: string;
-  _page?: number;
-  _per_page?: number;
+  offset?: number;
+  limit?: number;
 };
 
 interface RecipeListResponseDto {
   items: RecipeDto[];
+  total: number;
 }
 
 interface RecipeDto {

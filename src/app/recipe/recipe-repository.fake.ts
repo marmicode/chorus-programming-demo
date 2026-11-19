@@ -1,19 +1,23 @@
 import { Provider, Service } from '@angular/core';
-import { RecipeFilter } from './recipe-filter';
 import { defer, Observable, of } from 'rxjs';
 import { Recipe } from './recipe';
-import { RecipeRepository, RecipeRepositoryDef } from './recipe-repository';
+import { createRecipePage, RecipePage } from './recipe-page';
+import {
+  RecipeRepository,
+  RecipeRepositoryDef,
+  RecipeSearchCriteria,
+} from './recipe-repository';
 
 @Service()
 export class RecipeRepositoryFake implements RecipeRepositoryDef {
   private _pauseGate = new PauseGate();
   private _recipes: Recipe[] = [];
 
-  search(
-    { keywords, maxIngredientCount, maxStepCount }: RecipeFilter = {},
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-    pagination?: any,
-  ): Observable<Recipe[]> {
+  search({
+    filter: { keywords, maxIngredientCount, maxStepCount } = {},
+    offset = 0,
+    limit,
+  }: RecipeSearchCriteria = {}): Observable<RecipePage> {
     return defer(async () => {
       await this._pauseGate.whenResumed;
       const recipes = this._recipes.filter((recipe) => {
@@ -33,7 +37,13 @@ export class RecipeRepositoryFake implements RecipeRepositoryDef {
         /* Return true if all conditions are true. */
         return conditions.every((condition) => condition());
       });
-      return recipes;
+      return createRecipePage({
+        items: recipes.slice(
+          offset,
+          limit != null ? offset + limit : undefined,
+        ),
+        total: recipes.length,
+      });
     });
   }
 

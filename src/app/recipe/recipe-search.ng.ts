@@ -166,9 +166,9 @@ export class RecipeSearch implements OnInit {
       const filter = this.filter();
       log('fetching recipes', filter);
       this.isLoading.set(true);
-      this._recipeRepository.search(filter).subscribe({
-        next: (recipes) => {
-          this.recipes.set(recipes);
+      this._recipeRepository.search({ filter }).subscribe({
+        next: ({ items }) => {
+          this.recipes.set(items);
           this.isLoading.set(false);
         },
         error: (error) => {
