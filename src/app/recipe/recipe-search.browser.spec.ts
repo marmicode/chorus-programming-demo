@@ -27,6 +27,49 @@ describe(RecipeSearch.name, () => {
     /* This also checks that there is **only one** recipe heading. */
     await expect.element(recipeHeadings).toHaveTextContent('Burger');
   });
+
+  it('displays first page on load', async () => {
+    const { recipeHeadings, previousButton, nextButton } =
+      await mountRecipeSearchWithSevenRecipes();
+
+    await expect.element(recipeHeadings).toHaveLength(5);
+    await expect.element(previousButton).toBeDisabled();
+    await expect.element(nextButton).toBeEnabled();
+  });
+
+  it('navigates to next page', async () => {
+    const { recipeHeadings, previousButton, nextButton } =
+      await mountRecipeSearchWithSevenRecipes();
+
+    await nextButton.click();
+
+    await expect.element(recipeHeadings).toHaveLength(2);
+    await expect.element(previousButton).toBeEnabled();
+    await expect.element(nextButton).toBeDisabled();
+  });
+
+  it('navigates back to previous page', async () => {
+    const { recipeHeadings, previousButton, nextButton } =
+      await mountRecipeSearchWithSevenRecipes();
+
+    await nextButton.click();
+    await previousButton.click();
+
+    await expect.element(recipeHeadings).toHaveLength(5);
+    await expect.element(recipeHeadings.nth(0)).toHaveTextContent('Burger');
+  });
+
+  it('resets to page 1 when filter changes', async () => {
+    const { recipeHeadings, previousButton, nextButton, keywordsInput } =
+      await mountRecipeSearchWithSevenRecipes();
+
+    await nextButton.click();
+    await keywordsInput.fill('Burger');
+
+    await expect.element(recipeHeadings).toHaveLength(1);
+    await expect.element(recipeHeadings).toHaveTextContent('Burger');
+    await expect.element(previousButton).toBeDisabled();
+  });
 });
 
 async function mountRecipeSearch() {
@@ -42,6 +85,18 @@ async function mountRecipeSearch() {
   return mount();
 }
 
+async function mountRecipeSearchWithSevenRecipes() {
+  const { mount, recipeRepoFake } = await setUpRecipeSearch();
+
+  recipeRepoFake.setRecipes(
+    ['Burger', 'Salad', 'Pizza', 'Beer', 'Soup', 'Cake', 'Pasta'].map((name) =>
+      recipeMother.withBasicInfo(name).build(),
+    ),
+  );
+
+  return mount();
+}
+
 async function setUpRecipeSearch() {
   t.configure({ providers: [provideRecipeRepositoryFake()] });
 
@@ -51,6 +106,8 @@ async function setUpRecipeSearch() {
       t.mount(RecipeSearch);
       return {
         keywordsInput: page.getByRole('textbox'),
+        previousButton: page.getByRole('button', { name: 'Previous' }),
+        nextButton: page.getByRole('button', { name: 'Next' }),
         recipeHeadings: page.getByRole('heading', { level: 2 }),
       };
     },
