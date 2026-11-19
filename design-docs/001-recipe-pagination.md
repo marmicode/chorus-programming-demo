@@ -70,12 +70,12 @@ flowchart LR
 </details>
 
 <details>
-<summary>🚧 PR#2 — Paginator component</summary>
+<summary>✅ PR#2 — Paginator component</summary>
 
 ## Tasks
 
-- [ ] Create `Paginator` component with inputs `offset`, `limit`, `total` and output `offsetChange`.
-- [ ] `Paginator` disables Previous when `offset === 0`; disables Next when `offset + limit >= total`.
+- [x] Create `Paginator` component with inputs `offset`, `limit`, `total` and output `offsetChange`.
+- [x] `Paginator` disables Previous when `offset === 0`; disables Next when `offset + limit >= total`.
 
 ## Testing Strategy
 
