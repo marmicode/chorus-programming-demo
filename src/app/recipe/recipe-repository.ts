@@ -6,19 +6,29 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
 export interface RecipeRepositoryDef {
-  search(filter: RecipeFilter): Observable<Recipe[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  search(filter: RecipeFilter, pagination?: any): Observable<Recipe[]>;
 }
 
 @Service()
 export class RecipeRepository implements RecipeRepositoryDef {
   private _httpClient = inject(HttpClient);
 
-  search({ keywords, maxIngredientCount }: RecipeFilter = {}): Observable<
-    Recipe[]
-  > {
+  search(
+    { keywords, maxIngredientCount }: RecipeFilter = {},
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pagination?: any,
+  ): Observable<Recipe[]> {
     const params: ResponseListQueryParams = {
       embed: 'ingredients',
       ...(keywords ? { q: keywords } : {}),
+      /* Not used yet: we paginate client-side for now (see PaginationEngineService). */
+      ...(pagination?.page
+        ? {
+            _page: pagination.page,
+            _per_page: pagination.perPage ?? pagination.size ?? 5,
+          }
+        : {}),
     };
 
     return this._httpClient
@@ -52,6 +62,8 @@ export class RecipeRepository implements RecipeRepositoryDef {
 type ResponseListQueryParams = {
   embed: 'ingredients' | 'steps' | 'ingredients,steps';
   q?: string;
+  _page?: number;
+  _per_page?: number;
 };
 
 interface RecipeListResponseDto {
