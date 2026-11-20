@@ -5,6 +5,22 @@ import { RecipeFilter } from './recipe-filter';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
+export interface RecipePage {
+  items: Recipe[];
+  total: number;
+}
+
+export interface RecipeSearchParams extends RecipeFilter {
+  /**
+   * @deprecated 🚧 work in progress
+   */
+  offset?: number;
+  /**
+   * @deprecated 🚧 work in progress
+   */
+  limit?: number;
+}
+
 export interface RecipeRepositoryDef {
   search(filter: RecipeFilter): Observable<Recipe[]>;
 }
